@@ -80,5 +80,6 @@ x64/
 */**/obj/Debug
 */**/obj/Release
 
-# File names
-data.txt
+# Project file types
+*.txt
+*.csv
