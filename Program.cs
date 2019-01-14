@@ -33,12 +33,34 @@ namespace SoccerStats
         {
             List<string[]> soccerResults = new List<string[]>();
 
+            //StreamReader instantiated to read the SoccerGameResults file 
             using (StreamReader reader = new StreamReader(fileName))
             {
+                //line variable created to contain each line of the file
                 string line = "";
+
+                //To read the header fields
+                reader.ReadLine();
+
+                //while Readline is assinging a value to line variable that is not null
                 while((line = reader.ReadLine()) != null)
                 {
+                    //split the string line up by each field and assign it to the value variable
                     string[] values = line.Split(',');
+
+                    //instantiate a new gameResult object so we can use the new property
+                    GameResult gameResult = new GameResult();
+                    //create a variable for gameDate.
+                    DateTime gameDate;
+                    //Try to parse the first string variable in the values string array
+                    //assign the parsed value to the gameDate variable
+                    if(DateTime.TryParse(values[0], out gameDate))
+                    {
+                        //if all that worked then take the parsed gameDate and set it
+                        //to the GameDate property on the gameResult object
+                        gameResult.GameDate = gameDate;
+                        Console.WriteLine(gameDate);
+                    }
                     soccerResults.Add(values);
                 }
                 
