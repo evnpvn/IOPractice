@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
 
 namespace SoccerStats
 {
@@ -16,8 +17,15 @@ namespace SoccerStats
             DirectoryInfo directory = new DirectoryInfo(currentDirectory);
 
             string fileName = Path.Combine(directory.FullName, "SoccerGameResults.csv");
-
             List<GameResult> fileContents = ReadSoccerResults(fileName);
+
+            fileName = Path.Combine(directory.FullName, "players.json");
+            List<Player> players = DeserializePlayers(fileName);
+
+            foreach(Player player in players)
+            {
+                Console.WriteLine(player.Team);
+            }
         }
 
         public static string ReadFile(string fileName)
@@ -101,5 +109,20 @@ namespace SoccerStats
 
             return soccerResults;
         }
+    
+        public static List<Player> DeserializePlayers(string fileName)
+        {
+            List<Player> players = new List<Player>();
+
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamReader reader = new StreamReader(fileName))
+            using (JsonTextReader jsonReader = new JsonTextReader(reader))
+            {
+                players = serializer.Deserialize<List<Player>>(jsonReader);
+            }
+            
+            return players;
+        }
+
     }
 }
