@@ -22,10 +22,16 @@ namespace SoccerStats
             fileName = Path.Combine(directory.FullName, "players.json");
             List<Player> players = DeserializePlayers(fileName);
 
-            foreach(Player player in players)
+            //called the method GetTopTenPlayers which we passed a list of players and assigned the result to list variable topTenPlayers
+            List<Player> topTenPlayers = GetTopTenPlayers(players);
+
+            foreach(Player player in topTenPlayers)
             {
-                Console.WriteLine(player.Team);
+                Console.WriteLine("Name: " + player.FirstName + " Points per game: " + player.PointsPerGame);
             }
+
+            fileName = Path.Combine(directory.FullName, "topten.json");
+            SerializePlayersToFile(topTenPlayers, fileName);
         }
 
         public static string ReadFile(string fileName)
@@ -110,19 +116,60 @@ namespace SoccerStats
             return soccerResults;
         }
     
+
+        //new method which returns a list of 'Player' objects and takes a fileName as a parameter
+        //FYI we just overrode the fileName so both files can't be used at once
         public static List<Player> DeserializePlayers(string fileName)
         {
-            List<Player> players = new List<Player>();
+            //create a new instance of the players list
+            //need to do this I think because we will use this 
+            //instance to deserialize the data against
+            //I think moreso we need access to the player methods (properties)
+            List<Player> players = new List<Player>();        
 
-            JsonSerializer serializer = new JsonSerializer();
+            //in order to deserialize we need to read the file.
+                //so created a streamreader object and a JsonTextReader object
             using (StreamReader reader = new StreamReader(fileName))
             using (JsonTextReader jsonReader = new JsonTextReader(reader))
             {
+                //created a new serializer Object. Need to do this to use call the methods against the instance
+                JsonSerializer serializer = new JsonSerializer();
                 players = serializer.Deserialize<List<Player>>(jsonReader);
             }
             
             return players;
         }
 
+        public static List<Player> GetTopTenPlayers(List<Player> players)
+        {
+            //create a new variable instance called topTenPlayers to use as a subset of the original all players list
+            List<Player> topTenPlayers = new List<Player>();
+            //we call the sort method against hte players object. The sort method takes the playercomparer parameter
+            players.Sort(new PlayerComparer());
+
+            players.Reverse();
+
+            int counter = 0;
+            foreach(Player player in players)
+            {
+                topTenPlayers.Add(player);
+                counter++;
+                if (counter == 10)
+                {
+                    break;
+                }
+            }
+            return topTenPlayers;
+        }
+
+        public static void SerializePlayersToFile(List<Player> players, string fileName)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            using (StreamWriter writer = new StreamWriter(fileName))
+            using (JsonTextWriter jsonWriter = new JsonTextWriter(writer))
+            {
+                serializer.Serialize(jsonWriter, players);
+            }
+        }
     }
 }
